@@ -206,6 +206,14 @@ Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function(
   input.style.flex = '1';
   input.style.minWidth = '0';
   input.addEventListener('input', function() {
+
+    input.value = input.value.replace(/[^0-9.]/g, '');
+
+    var parts = input.value.split('.');
+    if (parts.length > 2) {
+      input.value = parts[0] + '.' + parts.slice(1).join('');
+    }
+
     var inputs = contentDiv.querySelectorAll('input');
     this.setValue(JSON.stringify([inputs[0].value, inputs[1].value]));
   }.bind(this));
