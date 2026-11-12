@@ -197,7 +197,6 @@ Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function(
   row.style.alignItems = 'center';
   row.style.margin = '6px';
   row.style.gap = '8px';
-  row.appendChild(document.createTextNode(labelText));
 
   var input = document.createElement('input');
   input.type = 'text';
@@ -218,6 +217,7 @@ Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function(
     this.setValue(JSON.stringify([inputs[0].value, inputs[1].value]));
   }.bind(this));
   row.appendChild(input);
+  row.appendChild(document.createTextNode(labelText));
   contentDiv.appendChild(row);
 };
 
