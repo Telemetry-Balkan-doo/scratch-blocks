@@ -90,6 +90,12 @@ Blockly.FieldIconMenu.prototype.init = function(block) {
   this.arrowX_ = 18;
   /** @type {Number} */
   this.arrowY_ = 10;
+
+  if (block.type === 'dropdown_broadcast_customy') {
+    this.arrowX_ = 12;
+    this.arrowY_ = 6;
+  }
+
   if (block.RTL) {
     // In RTL, the icon position is flipped and rendered from the right (offset by width)
     this.arrowX_ = -this.arrowX_ - arrowSize;
