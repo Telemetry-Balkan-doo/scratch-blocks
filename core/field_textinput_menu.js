@@ -37,8 +37,7 @@ goog.require('Blockly.utils');
  * @constructor
  * @extends {Blockly.FieldTextInput}
  */
-Blockly.FieldTextInputMenu = function(label, firstValue, secondValue,
-    opt_firstLabel, opt_secondLabel) {
+Blockly.FieldTextInputMenu = function(label, firstValue, secondValue, opt_firstLabel, opt_secondLabel) {
   this.label_ = label === undefined || label === null ? 'Edit' : label;
   this.firstLabel_ = opt_firstLabel || 'First';
   this.secondLabel_ = opt_secondLabel || 'Second';
@@ -166,7 +165,7 @@ Blockly.FieldTextInputMenu.prototype.showEditor_ = function() {
 
   var contentDiv = Blockly.DropDownDiv.getContentDiv();
   contentDiv.setAttribute('role', 'group');
-  contentDiv.setAttribute('aria-label', this.label_);
+   contentDiv.setAttribute('aria-label', 'Speed ​​and distance');
   contentDiv.style.width = '240px';
 
   var values = this.getInputValues();

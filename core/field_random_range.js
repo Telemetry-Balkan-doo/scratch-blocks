@@ -11,15 +11,9 @@ goog.require('Blockly.FieldTextInput');
 goog.require('Blockly.FieldTextDropdown');
 goog.require('Blockly.utils');
 
-Blockly.FieldRandomRange = function(
-    minValue,
-    maxValue,
-    opt_minLabel,
-    opt_maxLabel
-) {
-    this.minLabel_ = opt_minLabel || 'От';
-    this.maxLabel_ = opt_maxLabel || 'До';
-
+Blockly.FieldRandomRange = function(minValue, maxValue, opt_minLabel, opt_maxLabel) {
+    this.minLabel_ = opt_minLabel || 'First';
+    this.maxLabel_ = opt_maxLabel || 'Second';
     this.minLimit_ = 0;
     this.maxLimit_ = 1000000;
 
@@ -185,7 +179,7 @@ Blockly.FieldRandomRange.prototype.showEditor_ = function() {
     var contentDiv = Blockly.DropDownDiv.getContentDiv();
 
     contentDiv.setAttribute('role', 'group');
-    contentDiv.setAttribute('aria-label', 'Диапазон случайного числа');
+    contentDiv.setAttribute('aria-label', 'Range of a random number');
     contentDiv.style.width = '240px';
 
     var values = this.getInputValues();
@@ -291,7 +285,4 @@ Blockly.FieldRandomRange.prototype.appendNumberInput_ = function(
 /**
  * Field registration
  */
-Blockly.Field.register(
-    'field_random_range',
-    Blockly.FieldRandomRange
-);
+Blockly.Field.register('field_random_range', Blockly.FieldRandomRange);
