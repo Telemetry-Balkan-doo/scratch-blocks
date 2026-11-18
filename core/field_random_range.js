@@ -222,12 +222,7 @@ Blockly.FieldRandomRange.prototype.showEditor_ = function() {
 /**
  * Creating a number field in a menu
  */
-Blockly.FieldRandomRange.prototype.appendNumberInput_ = function(
-    contentDiv,
-    labelText,
-    value,
-    index
-) {
+Blockly.FieldRandomRange.prototype.appendNumberInput_ = function( contentDiv, labelText, value, index ) {
     var row = document.createElement('label');
 
     row.style.display = 'flex';
@@ -237,12 +232,10 @@ Blockly.FieldRandomRange.prototype.appendNumberInput_ = function(
 
     var input = document.createElement('input');
 
-    input.type = 'number';
+    input.type = 'text';
     input.step = '1';
     input.value = value;
-
     input.setAttribute('aria-label', labelText);
-
     input.style.flex = '1';
     input.style.minWidth = '0';
     input.style.padding = '6px';
@@ -258,26 +251,10 @@ Blockly.FieldRandomRange.prototype.appendNumberInput_ = function(
 
     contentDiv.appendChild(row);
 
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
+        input.value = input.value.replace(/(?!^-)[^0-9]/g, '');
         var inputs = contentDiv.querySelectorAll('input');
-
-        var min = inputs[0].value;
-        var max = inputs[1].value;
-
-        // We do not save invalid values
-        if (
-            min === '' ||
-            max === '' ||
-            !Number.isSafeInteger(Number(min)) ||
-            !Number.isSafeInteger(Number(max)) ||
-            Number(min) > Number(max) ||
-            Number(min) < this.minLimit_ ||
-            Number(max) > this.maxLimit_
-        ) {
-            return;
-        }
-
-        this.setValue(JSON.stringify([min, max]));
+        this.setValue(JSON.stringify([inputs[0].value, inputs[1].value]));
 
     }.bind(this));
 };

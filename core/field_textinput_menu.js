@@ -189,15 +189,16 @@ Blockly.FieldTextInputMenu.prototype.showEditor_ = function() {
  * @param {string} value Initial input value.
  * @private
  */
-Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function(
-    contentDiv, labelText, value) {
+Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function( contentDiv, labelText, value ) {
   var row = document.createElement('label');
+
   row.style.display = 'flex';
   row.style.alignItems = 'center';
   row.style.margin = '6px';
   row.style.gap = '8px';
 
   var input = document.createElement('input');
+  
   input.type = 'text';
   input.value = value;
   input.setAttribute('aria-label', labelText);
@@ -215,9 +216,13 @@ Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function(
     var inputs = contentDiv.querySelectorAll('input');
     this.setValue(JSON.stringify([inputs[0].value, inputs[1].value]));
   }.bind(this));
+
   row.appendChild(input);
   row.appendChild(document.createTextNode(labelText));
   contentDiv.appendChild(row);
 };
 
+/**
+ * Field registration
+ */
 Blockly.Field.register('field_textinput_menu', Blockly.FieldTextInputMenu);
