@@ -14,6 +14,7 @@ goog.require('Blockly.utils');
 Blockly.FieldRandomRange = function(minValue, maxValue, opt_minLabel, opt_maxLabel) {
     this.minLabel_ = opt_minLabel || 'First';
     this.maxLabel_ = opt_maxLabel || 'Second';
+
     this.minLimit_ = 0;
     this.maxLimit_ = 1000000;
 
@@ -35,6 +36,7 @@ goog.inherits(
     Blockly.FieldTextInput
 );
 
+
 /**
  * Creating a field from JSON
  */
@@ -53,14 +55,15 @@ Blockly.FieldRandomRange.fromJson = function(options) {
     return field;
 };
 
+
 /**
- * Initialization of the field and the arrow
+ * Initialization
  */
 Blockly.FieldRandomRange.prototype.init = function(block) {
     if (this.fieldGroup_) {
         return;
     }
-    
+
     Blockly.FieldRandomRange.superClass_.init.call(this);
 
     this.arrowSize_ = 12;
@@ -98,27 +101,51 @@ Blockly.FieldRandomRange.prototype.init = function(block) {
     this.render_();
 };
 
+
 /**
  * Text displayed on the block
  */
 Blockly.FieldRandomRange.prototype.getDisplayText_ = function() {
-    var values = this.getInputValues();
-
-    // return values[0] + ' – ' + values[1];
-    return ""
+    return '';
 };
+
 
 /**
- * Display update
+ * Update stored value WITHOUT rerendering the block.
+ *
+ * Important:
+ * The field has no visible text, only a fixed arrow.
+ * Therefore changing its value does not require rerendering.
  */
 Blockly.FieldRandomRange.prototype.setText = function(newText) {
-    Blockly.FieldRandomRange.superClass_.setText.call(
-        this,
-        newText
-    );
+    if (newText === null) {
+        return;
+    }
 
-    this.render_();
+    newText = String(newText);
+
+    if (newText === this.text_) {
+        return;
+    }
+
+    var oldText = this.text_;
+
+    if (this.sourceBlock_ && Blockly.Events.isEnabled()) {
+        Blockly.Events.fire(
+            new Blockly.Events.BlockChange(
+                this.sourceBlock_,
+                'field',
+                this.name,
+                oldText,
+                newText
+            )
+        );
+    }
+
+    // Update the internal value without forceRerender().
+    this.text_ = newText;
 };
+
 
 /**
  * Retrieving range values
@@ -142,6 +169,7 @@ Blockly.FieldRandomRange.prototype.getInputValues = function() {
     ];
 };
 
+
 /**
  * Pointer positioning
  */
@@ -156,17 +184,21 @@ Blockly.FieldRandomRange.prototype.positionArrow = function(x) {
     var arrowCenterX = Blockly.BlockSvg.FIELD_WIDTH / 2;
     this.arrowX_ = arrowCenterX - this.arrowSize_ / 2;
 
-    // TODO: Fix the coordinate calculation algorithm 
     this.arrow_.setAttribute(
         'transform',
-        'translate(' + (this.arrowX_ - 7) + ',' + (this.arrowY_ - 5) + ')'
+        'translate(' +
+            (this.arrowX_ - 7) +
+            ',' +
+            (this.arrowY_ - 5) +
+            ')'
     );
 
     return arrowWidth;
 };
 
+
 /**
- * Open menue
+ * Open menu
  */
 Blockly.FieldRandomRange.prototype.showEditor_ = function() {
     if (Blockly.DropDownDiv.hideIfOwner(this)) {
@@ -179,7 +211,11 @@ Blockly.FieldRandomRange.prototype.showEditor_ = function() {
     var contentDiv = Blockly.DropDownDiv.getContentDiv();
 
     contentDiv.setAttribute('role', 'group');
-    contentDiv.setAttribute('aria-label', 'Range of a random number');
+    contentDiv.setAttribute(
+        'aria-label',
+        'Range of a random number'
+    );
+
     contentDiv.style.width = '240px';
 
     var values = this.getInputValues();
@@ -219,10 +255,16 @@ Blockly.FieldRandomRange.prototype.showEditor_ = function() {
     );
 };
 
+
 /**
  * Creating a number field in a menu
  */
-Blockly.FieldRandomRange.prototype.appendNumberInput_ = function( contentDiv, labelText, value, index ) {
+Blockly.FieldRandomRange.prototype.appendNumberInput_ = function(
+    contentDiv,
+    labelText,
+    value,
+    index
+) {
     var row = document.createElement('label');
 
     row.style.display = 'flex';
@@ -235,7 +277,9 @@ Blockly.FieldRandomRange.prototype.appendNumberInput_ = function( contentDiv, la
     input.type = 'text';
     input.step = '1';
     input.value = value;
+
     input.setAttribute('aria-label', labelText);
+
     input.style.flex = '1';
     input.style.minWidth = '0';
     input.style.padding = '6px';
@@ -243,7 +287,6 @@ Blockly.FieldRandomRange.prototype.appendNumberInput_ = function( contentDiv, la
     input.style.borderRadius = '4px';
 
     var label = document.createElement('span');
-
     label.textContent = labelText;
 
     row.appendChild(input);
@@ -251,15 +294,31 @@ Blockly.FieldRandomRange.prototype.appendNumberInput_ = function( contentDiv, la
 
     contentDiv.appendChild(row);
 
-    input.addEventListener('input', function () {
+    // Only sanitize input while typing.
+    // Do NOT update Blockly on every keystroke.
+    input.addEventListener('input', function() {
         input.value = input.value.replace(/(?!^-)[^0-9]/g, '');
+    });
+
+    // Save the value when the input changes / loses focus.
+    input.addEventListener('change', function() {
         var inputs = contentDiv.querySelectorAll('input');
-        this.setValue(JSON.stringify([inputs[0].value, inputs[1].value]));
+
+        this.setValue(
+            JSON.stringify([
+                inputs[0].value,
+                inputs[1].value
+            ])
+        );
 
     }.bind(this));
 };
 
+
 /**
  * Field registration
  */
-Blockly.Field.register('field_random_range', Blockly.FieldRandomRange);
+Blockly.Field.register(
+    'field_random_range',
+    Blockly.FieldRandomRange
+);
