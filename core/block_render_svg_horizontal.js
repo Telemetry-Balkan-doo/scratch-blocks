@@ -391,39 +391,37 @@ Blockly.BlockSvg.prototype.RenderConnections = function(block, opt_bubble) {
 
   // Condition check. Don't redraw unless necessary.
   if (oldMetrics && Blockly.BlockSvg.metricsAreEquivalent_(oldMetrics, metrics)) {
+    // Rendering of side block connections
+    if (block.nextConnection && block.nextConnection.targetConnection) {
+      block.nextConnection.tighten_();
+    }
 
-      // Rendering of side block connections
-      if (block.nextConnection && block.nextConnection.targetConnection) {
-          block.nextConnection.tighten_();
-      };
-
-      // Moving the reporter block exactly into the slot of the logic block.
-      block.inputList.forEach((input) => {
-          if (input.connection && input.connection.targetConnection) {
-              input.connection.tighten_();
-          };
-      });
-
+    // Moving the reporter block exactly into the slot of the logic block.
+    block.inputList.forEach((input) => {
+      if (input.connection && input.connection.targetConnection) {
+        input.connection.tighten_();
+      }
+    });
   } else {
-      block.height = metrics.height;
-      block.width = metrics.width;
-      block.renderDraw_(metrics);
-      block.renderClassify_(metrics);
-      block.renderingMetrics_ = metrics;
-  };
+    block.height = metrics.height;
+    block.width = metrics.width;
+    block.renderDraw_(metrics);
+    block.renderClassify_(metrics);
+    block.renderingMetrics_ = metrics;
+  }
 
-  if (opt_bubble !== false ) {
-      // Render all blocks above this one (propagate a reflow).
-      const parentBlock = block.getParent();
-      
-      if (parentBlock) {
-          parentBlock.render(true);    
-      } else {
+  if (opt_bubble !== false) {
+    // Render all blocks above this one (propagate a reflow).
+    const parentBlock = block.getParent();
+
+    if (parentBlock) {
+      parentBlock.render(true);
+    } else {
       // Top-most block. Fire an event to allow scrollbars to resize.
-          Blockly.resizeSvgContents(block.workspace);
-      };
-  };
-  
+      Blockly.resizeSvgContents(block.workspace);
+    }
+  }
+
   Blockly.Field.stopCache();
 };
 
@@ -656,14 +654,14 @@ Blockly.BlockSvg.prototype.renderCompute_ = function() {
         );
         
     if (isDistanceObstacleShadow) {
-        // Custom shadow size for distance reporter.
-        metrics.width = 35;
-        metrics.height = 20;
-        metrics.fieldRadius = 9;
+      // Custom shadow size for distance reporter.
+      metrics.width = 35;
+      metrics.height = 20;
+      metrics.fieldRadius = 9;
     } else {
-        // Default dimensions.
-        metrics.height = Blockly.BlockSvg.FIELD_HEIGHT;
-        metrics.width = Blockly.BlockSvg.FIELD_WIDTH;
+      // Default dimensions.
+      metrics.height = Blockly.BlockSvg.FIELD_HEIGHT;
+      metrics.width = Blockly.BlockSvg.FIELD_WIDTH;
     }
   }
   if (metrics.statement) {
@@ -672,23 +670,23 @@ Blockly.BlockSvg.prototype.renderCompute_ = function() {
     metrics.height = metrics.bayHeight + Blockly.BlockSvg.STATEMENT_BLOCK_SPACE;
 
     // PATCH!
-    // Fix! Resolved an issue with the connector's interaction area 
-    //  located under a reporter block inside C-shaped blocks. 
-    // Changes were made to correct the connector's position 
-    //  when a C-shaped block expands. 
-    // In block_svg.js, the ReporterPositionCalculation 
-    //  function synchronizes the SVG position of the reporter block's slot 
-    //  at the moment of dragging or attaching a block. 
-    // This particular patch is applied at this specific location, 
+    // Fix! Resolved an issue with the connector's interaction area
+    //  located under a reporter block inside C-shaped blocks.
+    // Changes were made to correct the connector's position
+    //  when a C-shaped block expands.
+    // In block_svg.js, the ReporterPositionCalculation
+    //  function synchronizes the SVG position of the reporter block's slot
+    //  at the moment of dragging or attaching a block.
+    // This particular patch is applied at this specific location,
     //  during the block's first render on the workspace.
     const connection_reporter = this.getConnections_(true).find(c => c.type === 1);
     if (connection_reporter && bBox) {
-      const width = bBox.width
-      const height = bBox.height
-      const offset_w = width + 25
-      const offset_h = height + 9
+      const width = bBox.width;
+      const height = bBox.height;
+      const offset_w = width + 25;
+      const offset_h = height + 9;
       const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-      connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h)  
+      connection_reporter.moveTo(blockXY.x + offset_w, blockXY.y + offset_h);
     }
     //
 
@@ -774,7 +772,7 @@ Blockly.BlockSvg.prototype.renderDraw_ = function(metrics) {
     // console.log("SHADOW_")
     var input = this.getFieldShadowBlock_().getSvgRoot();
     var valueX = (Blockly.BlockSvg.NOTCH_WIDTH +
-      (metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) + 
+      (metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) +
       metrics.bayWidth);
 
     if (metrics.startHat) {
@@ -803,7 +801,7 @@ Blockly.BlockSvg.prototype.renderDraw_ = function(metrics) {
     // console.log("REPORTER_")
     var input = this.getFieldReporterBlock_().getSvgRoot();
     var valueX = (Blockly.BlockSvg.NOTCH_WIDTH +
-      (metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) + 
+      (metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) +
       metrics.bayWidth);
 
     if (metrics.startHat) {
