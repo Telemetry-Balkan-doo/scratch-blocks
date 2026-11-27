@@ -215,13 +215,18 @@ Blockly.FieldTextInput.prototype.setRestrictor = function(restrictor) {
  * @param {Function=} opt_arrowCallback Callback for when drop-down arrow clicked.
  * @private
  */
-Blockly.FieldTextInput.prototype.showEditor_ = function( opt_quietInput, opt_readOnly, opt_withArrow, opt_arrowCallback) {
+Blockly.FieldTextInput.prototype.showEditor_ = function(
+    opt_quietInput,
+    opt_readOnly,
+    opt_withArrow,
+    opt_arrowCallback
+) {
   this.workspace_ = this.sourceBlock_.workspace;
   var quietInput = opt_quietInput || false;
   var readOnly = opt_readOnly || false;
   
   if (this.sourceBlock_.isInFlyout) {
-    return
+    return;
   }
 
   Blockly.WidgetDiv.show(this, this.sourceBlock_.RTL,

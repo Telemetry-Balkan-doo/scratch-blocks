@@ -375,61 +375,65 @@ Blockly.BlockSvg.prototype.getHeightWidth = function(opt_ignoreFields) {
 };
 
 /**
- * 
+ * Renders the block's connections: redraws the block if its metrics have
+ * changed, otherwise just tightens connected blocks into their slots.
+ * @param {!Blockly.BlockSvg} block The block to render.
+ * @param {boolean=} opt_bubble If false, do not propagate the re-render
+ *     to parent blocks. Defaults to true.
+ * @this {Blockly.BlockSvg}
  */
 Blockly.BlockSvg.prototype.RenderConnections = function(block, opt_bubble) {
   block.rendered = true;
 
-    const oldMetrics = block.renderingMetrics_;
-    const metrics = block.renderCompute_();
+  const oldMetrics = block.renderingMetrics_;
+  const metrics = block.renderCompute_();
 
 
-    // Condition check. Don't redraw unless necessary.
-    if (oldMetrics && Blockly.BlockSvg.metricsAreEquivalent_(oldMetrics, metrics)) {
+  // Condition check. Don't redraw unless necessary.
+  if (oldMetrics && Blockly.BlockSvg.metricsAreEquivalent_(oldMetrics, metrics)) {
+    // Rendering of side block connections
+    if (block.nextConnection && block.nextConnection.targetConnection) {
+      block.nextConnection.tighten_();
+    }
 
-        // Rendering of side block connections
-        if (block.nextConnection && block.nextConnection.targetConnection) {
-            block.nextConnection.tighten_();
-        };
+    // Moving the reporter block exactly into the slot of the logic block.
+    block.inputList.forEach((input) => {
+      if (input.connection && input.connection.targetConnection) {
+        input.connection.tighten_();
+      }
+    });
+  } else {
+    block.height = metrics.height;
+    block.width = metrics.width;
+    block.renderDraw_(metrics);
+    block.renderClassify_(metrics);
+    block.renderingMetrics_ = metrics;
+  }
 
-        // Moving the reporter block exactly into the slot of the logic block.
-        block.inputList.forEach((input) => {
-            if (input.connection && input.connection.targetConnection) {
-                input.connection.tighten_();
-            };
-        });
+  if (opt_bubble !== false) {
+    // Render all blocks above this one (propagate a reflow).
+    const parentBlock = block.getParent();
 
+    if (parentBlock) {
+      parentBlock.render(true);
     } else {
-        block.height = metrics.height;
-        block.width = metrics.width;
-        block.renderDraw_(metrics);
-        block.renderClassify_(metrics);
-        block.renderingMetrics_ = metrics;
-    };
+      // Top-most block. Fire an event to allow scrollbars to resize.
+      Blockly.resizeSvgContents(block.workspace);
+    }
+  }
 
-    if (opt_bubble !== false ) {
-        // Render all blocks above this one (propagate a reflow).
-        const parentBlock = block.getParent();
-        
-        if (parentBlock) {
-            parentBlock.render(true);    
-        } else {
-        // Top-most block. Fire an event to allow scrollbars to resize.
-            Blockly.resizeSvgContents(block.workspace);
-        };
-    };
-    
-    Blockly.Field.stopCache();
-}
+  Blockly.Field.stopCache();
+};
 
 /**
  * Method for adjusting reporter block metrics. WIP (work in progress).
+ * @param {Object} block The reporter block to adjust.
+ * @param {boolean=} opt_bubble Whether to propagate the re-render to parent blocks.
  */
 Blockly.BlockSvg.prototype.RenderReporters = function(block, opt_bubble) {
   if (block.type === 'Reporter_get_distance_to_obstacle') {
-      const pos = block.getRelativeToSurfaceXY();
-      Rerender(block, opt_bubble);
-  };
+    Rerender(block, opt_bubble);
+  }
 
   // TODO: Do not delete!
   // if (block.type === 'Reporter_get_distance_to_obstacle_dropdown') {
@@ -443,33 +447,27 @@ Blockly.BlockSvg.prototype.RenderReporters = function(block, opt_bubble) {
   // };
 
   if (block.type === 'Reporter_get_pitch') {
-      const pos = block.getRelativeToSurfaceXY();
-      Rerender(block, opt_bubble);
-  };
+    Rerender(block, opt_bubble);
+  }
 
   if (block.type === 'Reporter_get_roll') {
-      const pos = block.getRelativeToSurfaceXY();
-      Rerender(block, opt_bubble);
-  };
+    Rerender(block, opt_bubble);
+  }
 
   if (block.type === 'Reporter_get_yaw') {
-      const pos = block.getRelativeToSurfaceXY();
-      Rerender(block, opt_bubble);
-  };
+    Rerender(block, opt_bubble);
+  }
 
   if (block.type === 'Reporter_get_random_number') {
-      const pos = block.getRelativeToSurfaceXY();
-      Rerender(block, opt_bubble);
-  };
+    Rerender(block, opt_bubble);
+  }
 
   if (block.type === 'dropdown_broadcast_obstacle') {
-      const pos = block.getRelativeToSurfaceXY();
-      Rerender(block, opt_bubble);
-  };
+    Rerender(block, opt_bubble);
+  }
 
   if (block.type === 'dropdown_random_number_range') {
-      const pos = block.getRelativeToSurfaceXY();
-      Rerender(block, opt_bubble)
+    Rerender(block, opt_bubble);
   }
 
   // TODO: Do not delete!
@@ -478,7 +476,7 @@ Blockly.BlockSvg.prototype.RenderReporters = function(block, opt_bubble) {
   //     Rerender(block, opt_bubble);
   // };
 
-  function Rerender (block, opt_bubble) {
+  function Rerender(block, opt_bubble) {
     var radius = 14;
     var sepY = 1;
     var oldRadius = Blockly.BlockSvg.CORNER_RADIUS;
@@ -492,7 +490,7 @@ Blockly.BlockSvg.prototype.RenderReporters = function(block, opt_bubble) {
 
     Blockly.BlockSvg.CORNER_RADIUS = oldRadius;
     Blockly.BlockSvg.SEP_SPACE_Y = oldSepY;
-  };
+  }
 };
 
 /**
@@ -508,7 +506,7 @@ Blockly.BlockSvg.prototype.render = function(opt_bubble) {
     this.RenderConnections(this, opt_bubble);
       
     return;
-  };
+  }
   
   Blockly.Field.startCache();
   this.rendered = true;
@@ -578,7 +576,6 @@ Blockly.BlockSvg.prototype.renderCompute_ = function() {
       if (!(input.connection && input.connection.targetConnection)) {
         var connection_reporter = this.getConnections_(true).find(c => c.type === 1);
         if (connection_reporter) {
-          var blockSvg = this.getSvgRoot();
           var blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
           var offset_w = 80;
           var offset_h = 85;
@@ -646,26 +643,26 @@ Blockly.BlockSvg.prototype.renderCompute_ = function() {
   metrics.height = Blockly.BlockSvg.SEP_SPACE_Y * 2 + Blockly.BlockSvg.IMAGE_FIELD_HEIGHT;
 
   if (this.outputConnection) {
-      const parent = this.getParent();
+    const parent = this.getParent();
 
-      const isDistanceObstacleShadow =
-          this.isShadow() &&
-          parent &&
-          (
-            parent.type === 'Reporter_get_distance_to_obstacle' ||
-            parent.type === 'Reporter_get_random_number'
-          );
-          
-      if (isDistanceObstacleShadow) {
-          // Custom shadow size for distance reporter.
-          metrics.width = 35;
-          metrics.height = 20;
-          metrics.fieldRadius = 9;
-      } else {
-          // Default dimensions.
-          metrics.height = Blockly.BlockSvg.FIELD_HEIGHT;
-          metrics.width = Blockly.BlockSvg.FIELD_WIDTH;
-      }
+    const isDistanceObstacleShadow =
+        this.isShadow() &&
+        parent &&
+        (
+          parent.type === 'Reporter_get_distance_to_obstacle' ||
+          parent.type === 'Reporter_get_random_number'
+        );
+        
+    if (isDistanceObstacleShadow) {
+      // Custom shadow size for distance reporter.
+      metrics.width = 35;
+      metrics.height = 20;
+      metrics.fieldRadius = 9;
+    } else {
+      // Default dimensions.
+      metrics.height = Blockly.BlockSvg.FIELD_HEIGHT;
+      metrics.width = Blockly.BlockSvg.FIELD_WIDTH;
+    }
   }
   if (metrics.statement) {
     // Block with statement (e.g., repeat, forever)
@@ -673,18 +670,23 @@ Blockly.BlockSvg.prototype.renderCompute_ = function() {
     metrics.height = metrics.bayHeight + Blockly.BlockSvg.STATEMENT_BLOCK_SPACE;
 
     // PATCH!
-    // Fix! Resolved an issue with the connector's interaction area located under a reporter block inside C-shaped blocks. 
-    // Changes were made to correct the connector's position when a C-shaped block expands. 
-    // In block_svg.js, the ReporterPositionCalculation function synchronizes the SVG position of the reporter block's slot at the moment of dragging or attaching a block. 
-    // This particular patch is applied at this specific location, during the block's first render on the workspace.
+    // Fix! Resolved an issue with the connector's interaction area
+    //  located under a reporter block inside C-shaped blocks.
+    // Changes were made to correct the connector's position
+    //  when a C-shaped block expands.
+    // In block_svg.js, the ReporterPositionCalculation
+    //  function synchronizes the SVG position of the reporter block's slot
+    //  at the moment of dragging or attaching a block.
+    // This particular patch is applied at this specific location,
+    //  during the block's first render on the workspace.
     const connection_reporter = this.getConnections_(true).find(c => c.type === 1);
     if (connection_reporter && bBox) {
-      const width = bBox.width
-      const height = bBox.height
-      const offset_w = width + 25
-      const offset_h = height + 9
+      const width = bBox.width;
+      const height = bBox.height;
+      const offset_w = width + 25;
+      const offset_h = height + 9;
       const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-      connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h)  
+      connection_reporter.moveTo(blockXY.x + offset_w, blockXY.y + offset_h);
     }
     //
 
@@ -769,7 +771,10 @@ Blockly.BlockSvg.prototype.renderDraw_ = function(metrics) {
   if (this.getFieldShadowBlock_()) {
     // console.log("SHADOW_")
     var input = this.getFieldShadowBlock_().getSvgRoot();
-    var valueX = (Blockly.BlockSvg.NOTCH_WIDTH +(metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) + metrics.bayWidth);
+    var valueX = (Blockly.BlockSvg.NOTCH_WIDTH +
+      (metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) +
+      metrics.bayWidth);
+
     if (metrics.startHat) {
       // Start hats add some left margin to field for visual balance
       valueX += Blockly.BlockSvg.GRID_UNIT * 2;
@@ -795,7 +800,10 @@ Blockly.BlockSvg.prototype.renderDraw_ = function(metrics) {
   if (this.getFieldReporterBlock_()){
     // console.log("REPORTER_")
     var input = this.getFieldReporterBlock_().getSvgRoot();
-    var valueX = (Blockly.BlockSvg.NOTCH_WIDTH +(metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) + metrics.bayWidth);
+    var valueX = (Blockly.BlockSvg.NOTCH_WIDTH +
+      (metrics.bayWidth ? 2 * Blockly.BlockSvg.GRID_UNIT + Blockly.BlockSvg.NOTCH_WIDTH * 2 : 0) +
+      metrics.bayWidth);
+
     if (metrics.startHat) {
       // Start hats add some left margin to field for visual balance
       valueX += Blockly.BlockSvg.GRID_UNIT * 2;
@@ -1066,7 +1074,7 @@ Blockly.BlockSvg.prototype.getFieldReporterBlock_ = function() {
   for (var i = 0, child; child = this.childBlocks_[i]; i++) {
     // child.type
     // Reporter_get_random_number
-    var typeReporter = child.type
+    var typeReporter = child.type;
 
     if (!child.isShadow()) {
       if (typeReporter.startsWith("Reporter_")) {
@@ -1075,7 +1083,7 @@ Blockly.BlockSvg.prototype.getFieldReporterBlock_ = function() {
     }
   }
 
-  return null
+  return null;
 };
 
 /**
