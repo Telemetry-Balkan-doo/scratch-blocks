@@ -37,8 +37,7 @@ goog.require('Blockly.utils');
  * @constructor
  * @extends {Blockly.FieldTextInput}
  */
-Blockly.FieldTextInputMenu = function(label, firstValue, secondValue,
-    opt_firstLabel, opt_secondLabel) {
+Blockly.FieldTextInputMenu = function(label, firstValue, secondValue, opt_firstLabel, opt_secondLabel) {
   this.label_ = label === undefined || label === null ? 'Edit' : label;
   this.firstLabel_ = opt_firstLabel || 'First';
   this.secondLabel_ = opt_secondLabel || 'Second';
@@ -166,7 +165,7 @@ Blockly.FieldTextInputMenu.prototype.showEditor_ = function() {
 
   var contentDiv = Blockly.DropDownDiv.getContentDiv();
   contentDiv.setAttribute('role', 'group');
-  contentDiv.setAttribute('aria-label', this.label_);
+   contentDiv.setAttribute('aria-label', 'Speed ​​and distance');
   contentDiv.style.width = '240px';
 
   var values = this.getInputValues();
@@ -190,15 +189,16 @@ Blockly.FieldTextInputMenu.prototype.showEditor_ = function() {
  * @param {string} value Initial input value.
  * @private
  */
-Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function(
-    contentDiv, labelText, value) {
+Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function( contentDiv, labelText, value ) {
   var row = document.createElement('label');
+
   row.style.display = 'flex';
   row.style.alignItems = 'center';
   row.style.margin = '6px';
   row.style.gap = '8px';
 
   var input = document.createElement('input');
+  
   input.type = 'text';
   input.value = value;
   input.setAttribute('aria-label', labelText);
@@ -216,9 +216,13 @@ Blockly.FieldTextInputMenu.prototype.appendTextInput_ = function(
     var inputs = contentDiv.querySelectorAll('input');
     this.setValue(JSON.stringify([inputs[0].value, inputs[1].value]));
   }.bind(this));
+
   row.appendChild(input);
   row.appendChild(document.createTextNode(labelText));
   contentDiv.appendChild(row);
 };
 
+/**
+ * Field registration
+ */
 Blockly.Field.register('field_textinput_menu', Blockly.FieldTextInputMenu);

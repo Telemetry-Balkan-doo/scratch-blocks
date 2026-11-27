@@ -462,6 +462,16 @@ Blockly.BlockSvg.prototype.RenderReporters = function(block, opt_bubble) {
       Rerender(block, opt_bubble);
   };
 
+  if (block.type === 'dropdown_broadcast_obstacle') {
+      const pos = block.getRelativeToSurfaceXY();
+      Rerender(block, opt_bubble);
+  };
+
+  if (block.type === 'dropdown_random_number_range') {
+      const pos = block.getRelativeToSurfaceXY();
+      Rerender(block, opt_bubble)
+  }
+
   // TODO: Do not delete!
   // if (block.type === 'Reporter_text_block') {
   //     const pos = block.getRelativeToSurfaceXY();
@@ -636,9 +646,26 @@ Blockly.BlockSvg.prototype.renderCompute_ = function() {
   metrics.height = Blockly.BlockSvg.SEP_SPACE_Y * 2 + Blockly.BlockSvg.IMAGE_FIELD_HEIGHT;
 
   if (this.outputConnection) {
-    // Field shadow block
-    metrics.height = Blockly.BlockSvg.FIELD_HEIGHT;
-    metrics.width = Blockly.BlockSvg.FIELD_WIDTH;
+      const parent = this.getParent();
+
+      const isDistanceObstacleShadow =
+          this.isShadow() &&
+          parent &&
+          (
+            parent.type === 'Reporter_get_distance_to_obstacle' ||
+            parent.type === 'Reporter_get_random_number'
+          );
+          
+      if (isDistanceObstacleShadow) {
+          // Custom shadow size for distance reporter.
+          metrics.width = 35;
+          metrics.height = 20;
+          metrics.fieldRadius = 9;
+      } else {
+          // Default dimensions.
+          metrics.height = Blockly.BlockSvg.FIELD_HEIGHT;
+          metrics.width = Blockly.BlockSvg.FIELD_WIDTH;
+      }
   }
   if (metrics.statement) {
     // Block with statement (e.g., repeat, forever)
@@ -753,6 +780,14 @@ Blockly.BlockSvg.prototype.renderDraw_ = function(metrics) {
     var valueY = (metrics.height + Blockly.BlockSvg.FIELD_Y_OFFSET);
     // console.log('shadow_y_', valueY)
     // console.log('shadow_x_', valueX)
+    if (this.type === 'Reporter_get_distance_to_obstacle' || this.type === 'Reporter_get_random_number') {
+      valueX += 0;
+      valueY += -2;
+    }
+
+    if (this.RTL) {
+      valueX = -valueX;
+    }
     var transformation = 'translate(' + valueX + ',' + valueY + ')';
     input.setAttribute('transform', transformation);
   }
