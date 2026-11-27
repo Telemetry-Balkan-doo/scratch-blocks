@@ -953,7 +953,7 @@ Blockly.BlockSvg.prototype.showContextMenu_ = function(e) {
  * but it should be calculated dynamically.
  * TODO: Also, the if statements for xy.x and xy.y are redundant and can be simplified.
  *
- * @param {number} x - X coordinate.
+ * @param {number} _x - X coordinate.
  * @param {number} _y - Y coordinate.
  */
 Blockly.BlockSvg.prototype.ReporterPositionCalculation = function(_x, _y) {
