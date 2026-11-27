@@ -298,12 +298,12 @@ Blockly.ConnectionDB.prototype.searchForClosest = function(conn, maxRadius,
 
   let pointerXMin = closestIndex - 1;
   while (pointerXMin >= 0 && Math.abs(this.connections_[pointerXMin].x_ - conn.x_) <= maxRadius) {
-      temp = this.connections_[pointerXMin];
-      if (conn.isConnectionAllowed(temp, bestRadius)) {
-          bestConnection = temp;
-          bestRadius = temp.distanceFrom(conn);
-      }
-      pointerXMin--;
+    temp = this.connections_[pointerXMin];
+    if (conn.isConnectionAllowed(temp, bestRadius)) {
+        bestConnection = temp;
+        bestRadius = temp.distanceFrom(conn);
+    }
+    pointerXMin--;
   }
 
   // Reset the values of x and y.

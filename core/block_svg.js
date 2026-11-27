@@ -925,7 +925,8 @@ Blockly.BlockSvg.prototype.showContextMenu_ = function(e) {
   if (this.isDeletable() && this.isMovable() && !block.isInFlyout) {
     menuOptions.push(
         Blockly.ContextMenu.blockDuplicateOption(block, e));
-    // TODO: Adds the "Add Comment" item to the block context menu (only if the block is editable and comments are enabled).
+    // TODO: Adds the "Add Comment" item to the block context menu 
+    //  (only if the block is editable and comments are enabled).
     if (this.isEditable() && this.workspace.options.comments) {
       menuOptions.push(Blockly.ContextMenu.blockCommentOption(block));
     }
@@ -947,117 +948,121 @@ Blockly.BlockSvg.prototype.showContextMenu_ = function(e) {
 /**
  * Patch for calculating position of the reporter notch in to blocks.
  * Partial implementation in the file block_render_svg_horizontal, in the renderCompute_() function.
- * 
- * TODO: Fix this properly later. reporterBubbleCoordsXY.y is hardcoded to 65 for now, but it should be calculated dynamically.
+ *
+ * TODO: Fix this properly later. reporterBubbleCoordsXY.y is hardcoded to 65 for now,
+ * but it should be calculated dynamically.
  * TODO: Also, the if statements for xy.x and xy.y are redundant and can be simplified.
+ *
+ * @param {number} x - X coordinate.
+ * @param {number} _y - Y coordinate.
  */
-Blockly.BlockSvg.prototype.ReporterPositionCalculation = function(x, y) {
-  // TODO: Fix this properly later.
-  // When calculating XY coordinates, the Blockly library accumulates floating-point precision errors. 
-  // As a result, xy.x and xy.y can store infinitesimally small values approaching zero (e.g., -1.13e-13). 
-  // This breaks the condition for capturing the reporter block's slot position. 
+Blockly.BlockSvg.prototype.ReporterPositionCalculation = function(x, _y) {
+  // TODO: Fix this properly.
+  // When calculating XY coordinates, the Blockly library accumulates floating-point precision errors.
+  // As a result, xy.x and xy.y can store infinitesimally small values approaching zero (e.g., -1.13e-13).
+  // This breaks the condition for capturing the reporter block's slot position.
   // Due to this bug, a temporary workaround has been implemented below.
   if (this.outputConnection && this.outputConnection.targetConnection) {
     const blockSvg = this.getSvgRoot();
-    const shape = blockSvg.parentElement.getAttribute("data-shapes")
+    const shape = blockSvg.parentElement.getAttribute("data-shapes");
        
     if (shape === "c-block") {
-        const xy = this.getRelativeToSurfaceXY();
+      const xy = this.getRelativeToSurfaceXY();
+      
+      if (xy.x === 0 && xy.y === 0 ) {
+        const parentSvg = this.getSvgRoot().parentElement;
+        const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
         
-        if (xy.x === 0 && xy.y === 0 ) {
-          const parentSvg = this.getSvgRoot().parentElement;
-          const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
-          
-          const width = bbox.width
-          const height = bbox.height
-          const offset_w = width - 64
-          const offset_h = height - 9
-          
-          this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
+        const width = bbox.width;
+        const height = bbox.height;
+        const offset_w = width - 64;
+        const offset_h = height - 9;
+        
+        this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
 
-          const parent = this.getParent()
-          const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
+        const parent = this.getParent()
+        const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
+        const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
+        if (connection_reporter) {
+          connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h);
+        }
+      }
+
+      if (xy.x < 0.1 && xy.y < 0.1) {
+        const parentSvg = this.getSvgRoot().parentElement;
+        const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
+        
+        const width = bbox.width;
+        const height = bbox.height;
+        const offset_w = width - 64;
+        const offset_h = height - 9;
+
+        this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
+
+        const parent = this.getParent()
+        const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
+        const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
+        if (connection_reporter) {
+          connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h);
+        }
+      }
+
+      if (xy.x < 0.1 && xy.y > 0.1) {
+        const parentSvg = this.getSvgRoot().parentElement;
+        const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
+        
+        const width = bbox.width;
+        const height = bbox.height;
+        const offset_w = width - 64;
+        const offset_h = height - 9;
+        
+        this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
+
+        const parent = this.getParent();
+        const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
+        const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
+        if (connection_reporter) {
+          connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h);
+        }
+      }
+
+      if (xy.x > 0.1 && xy.y < 0.1) {
+        const parentSvg = this.getSvgRoot().parentElement;
+        const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
+        
+        const width = bbox.width;
+        const height = bbox.height;
+        const offset_w = width - 64;
+        const offset_h = height - 9;
+        
+        this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
+
+        const parent = this.getParent();
+        const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
+        if (connection_reporter) {
           const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          if (connection_reporter) {
-            connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h)
-          }
+          connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h);
         }
+      }
 
-        if (xy.x < 0.1 && xy.y < 0.1) {
-          const parentSvg = this.getSvgRoot().parentElement;
-          const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
-          
-          const width = bbox.width
-          const height = bbox.height
-          const offset_w = width - 64
-          const offset_h = height - 9
+      if (xy.x > 0.1 && xy.y > 0.1) {
+        const parentSvg = this.getSvgRoot().parentElement;
+        const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
+        
+        const width = bbox.width;
+        const height = bbox.height;
+        const offset_w = width - 64;
+        const offset_h = height - 9;
 
-          this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
-
-          const parent = this.getParent()
-          const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
+        this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
+        
+        const parent = this.getParent();
+        const connection_reporter = parent.getConnections_(true).find(c => c.type === 1); 
+        if (connection_reporter) {
           const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          if (connection_reporter) {
-            connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h)
-          }
+          connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h);
         }
-
-        if (xy.x < 0.1 && xy.y > 0.1) {
-          const parentSvg = this.getSvgRoot().parentElement;
-          const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
-          
-          const width = bbox.width
-          const height = bbox.height
-          const offset_w = width - 64
-          const offset_h = height - 9
-          
-          this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
-
-          const parent = this.getParent()
-          const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
-          const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          if (connection_reporter) {
-            connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h)
-          }
-        }
-
-        if (xy.x > 0.1 && xy.y < 0.1) {
-          const parentSvg = this.getSvgRoot().parentElement;
-          const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
-          
-          const width = bbox.width
-          const height = bbox.height
-          const offset_w = width - 64
-          const offset_h = height - 9
-          
-          this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
-
-          const parent = this.getParent()
-          const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
-          if (connection_reporter) {
-            const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-            connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h)
-          }
-        }
-
-        if (xy.x > 0.1 && xy.y > 0.1) {
-          const parentSvg = this.getSvgRoot().parentElement;
-          const bbox = parentSvg.querySelector('.blocklyBlockBackground').getBBox();
-          
-          const width = bbox.width
-          const height = bbox.height
-          const offset_w = width - 64
-          const offset_h = height - 9
-
-          this.getSvgRoot().setAttribute('transform', `translate(${(offset_w)},${offset_h})`);
-          
-          const parent = this.getParent()
-          const connection_reporter = parent.getConnections_(true).find(c => c.type === 1); 
-          if (connection_reporter) {
-            const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-            connection_reporter.moveTo(blockXY.x+offset_w, blockXY.y+offset_h)
-          }
-        }
+      }
     }
     
     if (shape === "stack" || shape === "hat") {
@@ -1065,51 +1070,51 @@ Blockly.BlockSvg.prototype.ReporterPositionCalculation = function(x, y) {
       if (xy.x === 0 && xy.y === 0 ) {
         this.getSvgRoot().setAttribute('transform', 'translate(8,56)');
         
-        const parent = this.getParent()
+        const parent = this.getParent();
         const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
         if (connection_reporter) {
           const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56)
+          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56);
         }
       }
       if (xy.x < 0.1 && xy.y < 0.1) {
         this.getSvgRoot().setAttribute('transform', 'translate(8,56)');
 
-        const parent = this.getParent()
+        const parent = this.getParent();
         const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
         if (connection_reporter) {
           const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56)
+          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56);
         }
       }
       if (xy.x < 0.1 && xy.y > 0.1) {
         this.getSvgRoot().setAttribute('transform', 'translate(8,56)');
 
-        const parent = this.getParent()
+        const parent = this.getParent();
         const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
         if (connection_reporter) {
           const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56)
+          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56);
         }
       }
-      if (xy.x > 0.1 && xy.y < 0.1) {  
+      if (xy.x > 0.1 && xy.y < 0.1) {
         this.getSvgRoot().setAttribute('transform', 'translate(8,56)');
         
-        const parent = this.getParent()
+        const parent = this.getParent();
         const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
         if (connection_reporter) {
           const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56)
+          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56);
         }
       }
       if (xy.x > 0.1 && xy.y > 0.1) {
         this.getSvgRoot().setAttribute('transform', 'translate(8,56)');
 
-        const parent = this.getParent()
+        const parent = this.getParent();
         const connection_reporter = parent.getConnections_(true).find(c => c.type === 1);
         if (connection_reporter) {
           const blockXY = connection_reporter.getSourceBlock().getRelativeToSurfaceXY();
-          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56)
+          connection_reporter.moveTo(blockXY.x+8, blockXY.y+56);
         }
       }
     }
@@ -1125,7 +1130,7 @@ Blockly.BlockSvg.prototype.ReporterPositionCalculation = function(x, y) {
       if (xy.x < 0.1 && xy.y > 0.1) {
         this.getSvgRoot().setAttribute('transform', 'translate(14,56)');
       }
-      if (xy.x > 0.1 && xy.y < 0.1) {  
+      if (xy.x > 0.1 && xy.y < 0.1) {
         this.getSvgRoot().setAttribute('transform', 'translate(14,56)');
       }
       if (xy.x > 0.1 && xy.y > 0.1) {
@@ -1133,7 +1138,7 @@ Blockly.BlockSvg.prototype.ReporterPositionCalculation = function(x, y) {
       }
     }
   }
-}
+};
 
 /**
  * Move the connections for this block and all blocks attached under it.
@@ -1151,7 +1156,7 @@ Blockly.BlockSvg.prototype.moveConnections_ = function(dx, dy) {
     return;
   }
   
-  this.ReporterPositionCalculation()
+  this.ReporterPositionCalculation();
 
   // console.log('move_connections__')
 
@@ -1161,7 +1166,7 @@ Blockly.BlockSvg.prototype.moveConnections_ = function(dx, dy) {
     // console.log(svgParent);
   }
 
-  this.render(false)
+  this.render(false);
   // var metrics = this.renderCompute_();
   // this.renderDraw_(metrics);
   

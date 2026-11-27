@@ -74,7 +74,7 @@ Blockly.FieldTextInputMenu.fromJson = function(element) {
  * Initialize the field and its drop-down arrow.
  * @param {!Blockly.Block} block Owning block.
  */
-Blockly.FieldTextInputMenu.prototype.init = function(block) {
+Blockly.FieldTextInputMenu.prototype.init = function() {
   if (this.fieldGroup_) {
     return;
   }
@@ -165,7 +165,7 @@ Blockly.FieldTextInputMenu.prototype.showEditor_ = function() {
 
   var contentDiv = Blockly.DropDownDiv.getContentDiv();
   contentDiv.setAttribute('role', 'group');
-   contentDiv.setAttribute('aria-label', 'Speed ​​and distance');
+  contentDiv.setAttribute('aria-label', 'Speed ​​and distance');
   contentDiv.style.width = '240px';
 
   var values = this.getInputValues();
